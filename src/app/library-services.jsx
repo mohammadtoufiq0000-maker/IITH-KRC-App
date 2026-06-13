@@ -2,6 +2,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useTheme } from '../constants/ThemeContext';
 
 const services = [
@@ -55,15 +56,7 @@ export default function LibraryServicesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={28} color={theme.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Library Services</Text>
-          <View style={{ width: 44 }} />
-        </View>
-      </View>
+      <ScreenHeader title="Library Services" />
 
       <FlatList
         data={services}

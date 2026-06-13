@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
+import { ActivityIndicator, Animated, Image, StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../constants/theme';
 
 export default function SplashScreen() {
@@ -46,6 +46,6 @@ export default function SplashScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.light.primary, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  logo: { width: 250, height: 250 },
+    logo: { width: 250, height: 250 },
   title: { fontSize: 24, fontWeight: '300', color: Colors.light.text, textAlign: 'center', letterSpacing: 1 },
 });

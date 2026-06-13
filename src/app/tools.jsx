@@ -2,6 +2,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useTheme } from '../constants/ThemeContext';
 
 const tools = [
@@ -66,15 +67,7 @@ export default function ToolsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={28} color={theme.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Research & Writing Tools</Text>
-          <View style={{ width: 44 }} />
-        </View>
-      </View>
+      <ScreenHeader title="Research & Writing Tools" />
 
       <FlatList
         data={tools}

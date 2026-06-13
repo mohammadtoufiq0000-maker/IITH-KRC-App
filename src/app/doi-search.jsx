@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Keyboard } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { useTheme } from '../constants/ThemeContext';
 
 export default function DoiSearchScreen() {
@@ -92,16 +93,7 @@ export default function DoiSearchScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header bar */}
-      <View style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={28} color={theme.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>DOI Document Search</Text>
-          <View style={{ width: 44 }} />
-        </View>
-      </View>
+      <ScreenHeader title="DOI Document Search" />
 
       <ScrollView style={styles.body} contentContainerStyle={styles.scrollContent}>
         {/* Academic introduction banner */}
