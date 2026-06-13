@@ -19,6 +19,8 @@ export default function ServiceDetailScreen() {
       case 'Similarity Checking Service': return 'fact-check';
       case 'Grammarly': return 'spellcheck';
       case 'Group Discussion Rooms': return 'groups';
+      case 'Article Request': return 'article';
+      case 'Photocopy Services': return 'content-copy';
       default: return 'help-outline';
     }
   };
@@ -75,6 +77,19 @@ export default function ServiceDetailScreen() {
         links = [
           { label: 'Booking Portal (IITH Website)', url: 'https://rb.krc.iith.ac.in/index.php' },
           { label: 'Email for Special Permission', url: 'mailto:office.library@iith.ac.in?cc=krc.facilities@iith.ac.in&subject=Discussion Room Special Request' }
+        ];
+        break;
+      case 'Article Request':
+        content = 'If you require research papers, journal articles, or conference proceedings that are not directly available in our subscribed e-resources, you can submit an Article Request. KRC staff will locate and acquire the document through inter-library loans or other databases for you.';
+        links = [
+          { label: 'Submit Google Form Request', url: 'https://forms.gle/ssnBndrp2FsxiM6x6' },
+          { label: 'Email Library: office.library@iith.ac.in', url: 'mailto:office.library@iith.ac.in?subject=Article Request' }
+        ];
+        break;
+      case 'Photocopy Services':
+        content = 'The library offers photocopying, printing, and scanning services to students, researchers, and faculty. You can utilize the scanning facilities for digitizing academic notes, reference materials, or book chapters, subject to standard copyright guidelines. Charges are applicable per page for print and copy services.';
+        links = [
+          { label: 'Email Library: office.library@iith.ac.in', url: 'mailto:office.library@iith.ac.in?subject=Photocopy/Scanning Inquiry' }
         ];
         break;
       default:

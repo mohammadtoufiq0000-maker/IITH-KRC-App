@@ -4,32 +4,40 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../constants/ThemeContext';
 
-const services = [
+const tools = [
   {
-    title: 'Document Delivery Service',
-    icon: 'local-shipping',
-    description: 'Arrange to obtain copies of papers from journals, conference proceedings, and other sources not held in our collection.',
+    title: 'Turnitin',
+    icon: 'fact-check',
+    description: 'Check similarity and plagiarism in your thesis, journals, and assignments.',
+    url: 'https://www.turnitin.com',
   },
   {
-    title: 'Book Suggestion/Procurement',
-    icon: 'add-business',
-    description: 'Recommend books and other resources required for teaching and research.',
+    title: 'Grammarly',
+    icon: 'spellcheck',
+    description: 'Improve your academic writing, grammar, vocabulary, and phrasing.',
+    url: 'https://www.grammarly.com/',
   },
-
   {
-    title: 'Article Request',
+    title: 'Reference Managers',
+    icon: 'bookmark',
+    description: 'Manage bibliography, citation library, and organize resources with Mendeley or Zotero.',
+    url: 'https://identity.iith.ac.in/',
+  },
+  {
+    title: 'Scientific Tools',
+    icon: 'science',
+    description: 'Access tools like Matlab, LaTeX, and other scientific computing utilities.',
+    url: 'https://identity.iith.ac.in/',
+  },
+  {
+    title: 'Citation Styles',
     icon: 'article',
-    description: 'Request journal articles and papers not directly accessible.',
+    description: 'Access guides for formatting citations in IEEE, APA, Harvard, and MLA formats.',
+    url: 'https://identity.iith.ac.in/',
   },
-  {
-    title: 'Photocopy Services',
-    icon: 'content-copy',
-    description: 'Photocopying and scanning services for academic materials.',
-  },
-  
 ];
 
-export default function LibraryServicesScreen() {
+export default function ToolsScreen() {
   const { theme, activeTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = createStyles(theme, activeTheme, insets);
@@ -39,10 +47,12 @@ export default function LibraryServicesScreen() {
       style={styles.card}
       activeOpacity={0.7}
       onPress={() => {
-        if (item.title === 'DOI Document Search') {
-          router.push('/doi-search');
+        if (item.title === 'Turnitin') {
+          router.push({ pathname: '/service-detail', params: { title: 'Similarity Checking Service' } });
+        } else if (item.title === 'Grammarly') {
+          router.push({ pathname: '/service-detail', params: { title: 'Grammarly' } });
         } else {
-          router.push({ pathname: '/service-detail', params: { title: item.title } });
+          router.push({ pathname: '/web-view', params: { url: item.url, title: item.title } });
         }
       }}
     >
@@ -50,6 +60,7 @@ export default function LibraryServicesScreen() {
         <MaterialIcons name={item.icon} size={36} color={theme.accent} />
       </View>
       <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
+      <Text style={styles.cardDesc} numberOfLines={3}>{item.description}</Text>
     </TouchableOpacity>
   );
 
@@ -60,13 +71,13 @@ export default function LibraryServicesScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={28} color={theme.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Library Services</Text>
+          <Text style={styles.headerTitle}>Research & Writing Tools</Text>
           <View style={{ width: 44 }} />
         </View>
       </View>
 
       <FlatList
-        data={services}
+        data={tools}
         keyExtractor={(item) => item.title}
         renderItem={renderItem}
         numColumns={2}
@@ -84,12 +95,12 @@ const createStyles = (theme, activeTheme, insets) => {
     headerSafeArea: { 
       backgroundColor: theme.primary, 
       paddingTop: insets?.top || 0,
-      borderBottomWidth: 1, 
-      borderBottomColor: 'rgba(255,255,255,0.05)' 
+      borderBottomWidth: 2, 
+      borderBottomColor: theme.accent 
     },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, height: 60 },
     backButton: { padding: 8 },
-    headerTitle: { color: theme.text, fontSize: 20, fontWeight: 'bold' },
+    headerTitle: { color: theme.text, fontSize: 18, fontWeight: 'bold' },
     list: { flex: 1, backgroundColor: theme.background },
     listContainer: { padding: 12 },
     card: {
@@ -99,9 +110,8 @@ const createStyles = (theme, activeTheme, insets) => {
       borderRadius: 16,
       margin: 8,
       alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 140,
-      maxWidth: '46%', // Ensures the odd 5th item doesn't stretch across the entire screen
+      minHeight: 180,
+      maxWidth: '46%',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: isDark ? 0.25 : 0.05,
@@ -113,7 +123,7 @@ const createStyles = (theme, activeTheme, insets) => {
     iconContainer: {
       backgroundColor: isDark ? 'rgba(212, 160, 23, 0.1)' : 'rgba(212, 160, 23, 0.08)',
       padding: 14,
-      borderRadius: 50, // Pure circle icon container for premium look
+      borderRadius: 50,
       marginBottom: 12,
       alignItems: 'center',
       justifyContent: 'center'
@@ -123,7 +133,13 @@ const createStyles = (theme, activeTheme, insets) => {
       fontSize: 15,
       color: theme.text,
       textAlign: 'center',
-      lineHeight: 20
+      marginBottom: 6,
+    },
+    cardDesc: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      lineHeight: 15,
     },
   });
 };

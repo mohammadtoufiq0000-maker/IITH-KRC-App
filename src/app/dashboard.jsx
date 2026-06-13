@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // No WebBrowser import needed
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
@@ -149,14 +150,60 @@ export default function DashboardScreen() {
     router.replace('/login');
   };
 
-  const handleSearchSubmit = () => {
-    const query = searchQuery.trim();
-    if (!query) {
-      alert('Please enter a search query.');
-      return;
+  const [savedSearches, setSavedSearches] = useState([]);
+
+  // Load saved searches on mount
+  useEffect(() => {
+    const loadSavedSearches = async () => {
+      try {
+        const storedVal = await AsyncStorage.getItem('@krc_saved_searches');
+        if (storedVal !== null) {
+          setSavedSearches(JSON.parse(storedVal));
+        }
+      } catch (err) {
+        console.error('Error loading saved searches:', err);
+      }
+    };
+    loadSavedSearches();
+  }, []);
+
+  const saveSearchesToDisk = async (newList) => {
+    try {
+      await AsyncStorage.setItem('@krc_saved_searches', JSON.stringify(newList));
+    } catch (err) {
+      console.error('Error storing saved searches:', err);
     }
-    
-    switch (searchSource) {
+  };
+
+  const isCurrentQueryBookmarked = () => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return false;
+    return savedSearches.some(item => item.query.toLowerCase() === query && item.source === searchSource);
+  };
+
+  const toggleBookmarkSearch = () => {
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    if (isCurrentQueryBookmarked()) {
+      const newList = savedSearches.filter(item => !(item.query.toLowerCase() === query.toLowerCase() && item.source === searchSource));
+      setSavedSearches(newList);
+      saveSearchesToDisk(newList);
+    } else {
+      const newList = [{ query, source: searchSource }, ...savedSearches];
+      setSavedSearches(newList);
+      saveSearchesToDisk(newList);
+    }
+  };
+
+  const deleteSavedSearch = (query, source) => {
+    const newList = savedSearches.filter(item => !(item.query.toLowerCase() === query.toLowerCase() && item.source === source));
+    setSavedSearches(newList);
+    saveSearchesToDisk(newList);
+  };
+
+  const executeSearch = (query, source) => {
+    switch (source) {
       case 'opac':
         router.push({ 
           pathname: '/web-view', 
@@ -210,6 +257,21 @@ export default function DashboardScreen() {
         });
         break;
     }
+  };
+
+  const rerunSearch = (query, source) => {
+    setSearchQuery(query);
+    setSearchSource(source);
+    executeSearch(query, source);
+  };
+
+  const handleSearchSubmit = () => {
+    const query = searchQuery.trim();
+    if (!query) {
+      alert('Please enter a search query.');
+      return;
+    }
+    executeSearch(query, searchSource);
   };
 
   const getHeaderTitle = () => {
@@ -386,7 +448,7 @@ export default function DashboardScreen() {
           <View style={styles.menuIconWrap}>
             <MaterialIcons name="vpn-lock" size={32} color={theme.accent} />
           </View>
-          <Text style={styles.menuCardTitle}>Off-Campus Access</Text>
+          <Text style={styles.menuCardTitle}>E-resource & Database</Text>
           <Text style={styles.menuCardDesc}>Access database and digital journals from home securely.</Text>
         </TouchableOpacity>
 
@@ -396,6 +458,22 @@ export default function DashboardScreen() {
           </View>
           <Text style={styles.menuCardTitle}>Institutional Resources</Text>
           <Text style={styles.menuCardDesc}>Browse local repositories, publications, and papers.</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuCard} onPress={() => handleMenuPress('/tools')}>
+          <View style={styles.menuIconWrap}>
+            <MaterialIcons name="build" size={32} color={theme.accent} />
+          </View>
+          <Text style={styles.menuCardTitle}>Tools</Text>
+          <Text style={styles.menuCardDesc}>Access Turnitin, Grammarly, and writing/citation assistants.</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuCard} onPress={() => handleMenuPress('/bookings')}>
+          <View style={styles.menuIconWrap}>
+            <MaterialIcons name="meeting-room" size={32} color={theme.accent} />
+          </View>
+          <Text style={styles.menuCardTitle}>Bookings</Text>
+          <Text style={styles.menuCardDesc}>Book discussion rooms, seminar halls, and virtual classrooms.</Text>
         </TouchableOpacity>
       </View>
       <View style={{ height: 100 }} />
@@ -428,6 +506,22 @@ export default function DashboardScreen() {
           onSubmitEditing={handleSearchSubmit}
           returnKeyType="search"
         />
+        <TouchableOpacity 
+          onPress={() => {
+            if (!searchQuery.trim()) {
+              alert('Please type a search query first to bookmark it.');
+              return;
+            }
+            toggleBookmarkSearch();
+          }} 
+          style={{ padding: 4, marginRight: 4 }}
+        >
+          <MaterialIcons 
+            name={isCurrentQueryBookmarked() ? "bookmark" : "bookmark-border"} 
+            size={22} 
+            color={searchQuery.trim() ? (isCurrentQueryBookmarked() ? theme.accent : theme.textSecondary) : `${theme.textSecondary}60`} 
+          />
+        </TouchableOpacity>
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4, marginRight: 4 }}>
             <MaterialIcons name="close" size={20} color={theme.textSecondary} />
@@ -436,6 +530,58 @@ export default function DashboardScreen() {
         <TouchableOpacity onPress={handleSearchSubmit} style={styles.searchSubmitButton}>
           <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
+      </View>
+
+      {/* Saved Searches */}
+      <View style={styles.savedSearchesSection}>
+        <View style={styles.savedSearchesHeader}>
+          <Text style={styles.savedSearchesTitle}>Saved Searches</Text>
+          {savedSearches.length > 0 && (
+            <TouchableOpacity onPress={() => { setSavedSearches([]); saveSearchesToDisk([]); }}>
+              <Text style={styles.clearAllText}>Clear All</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        
+        {savedSearches.length > 0 ? (
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.savedSearchesScroll}
+          >
+            {savedSearches.map((item, index) => (
+              <View key={`${item.query}-${item.source}-${index}`} style={styles.savedSearchPill}>
+                <TouchableOpacity 
+                  style={styles.savedSearchPillTextContainer}
+                  onPress={() => rerunSearch(item.query, item.source)}
+                >
+                  <MaterialIcons 
+                    name={sourceOptions.find(opt => opt.id === item.source)?.icon || 'search'} 
+                    size={14} 
+                    color={theme.accent} 
+                    style={{ marginRight: 6 }} 
+                  />
+                  <Text style={styles.savedSearchText} numberOfLines={1}>
+                    {item.query}
+                  </Text>
+                  <Text style={styles.savedSearchSourceLabel}>
+                    ({getSelectedSourceName(item.source)})
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => deleteSavedSearch(item.query, item.source)}
+                  style={styles.deletePillButton}
+                >
+                  <MaterialIcons name="close" size={14} color={theme.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        ) : (
+          <Text style={styles.emptySavedSearchesText}>
+            Your saved searches will appear here. Enter a query and tap the bookmark icon in the search bar to save it.
+          </Text>
+        )}
       </View>
 
       {/* 1. OPAC Search (Hero Card) */}
@@ -779,8 +925,8 @@ const createStyles = (theme, insets) => {
       justifyContent: 'space-between', 
       paddingHorizontal: 16, 
       height: 60, 
-      borderBottomWidth: 1, 
-      borderBottomColor: 'rgba(255,255,255,0.05)' 
+      borderBottomWidth: 2, 
+      borderBottomColor: theme.accent 
     },
     headerLeft: {
       width: 80,
@@ -1426,6 +1572,70 @@ const createStyles = (theme, insets) => {
     color: theme.textSecondary,
     marginTop: 2,
     lineHeight: 14,
+  },
+  savedSearchesSection: {
+    marginBottom: 24,
+  },
+  savedSearchesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  savedSearchesTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: theme.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  clearAllText: {
+    fontSize: 12,
+    color: theme.accent,
+    fontWeight: '600',
+  },
+  savedSearchesScroll: {
+    paddingVertical: 4,
+    gap: 8,
+  },
+  savedSearchPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.backgroundElement,
+    borderWidth: 1,
+    borderColor: theme.backgroundSelected,
+    borderRadius: 20,
+    paddingLeft: 12,
+    paddingRight: 6,
+    height: 36,
+  },
+  savedSearchPillTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 6,
+  },
+  savedSearchText: {
+    fontSize: 13,
+    color: theme.text,
+    maxWidth: 120,
+  },
+  savedSearchSourceLabel: {
+    fontSize: 11,
+    color: theme.textSecondary,
+    marginLeft: 4,
+  },
+  deletePillButton: {
+    padding: 4,
+    marginLeft: 2,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+  },
+  emptySavedSearchesText: {
+    fontSize: 13,
+    color: theme.textSecondary,
+    fontStyle: 'italic',
+    lineHeight: 18,
+    marginTop: 4,
   },
 });
 }

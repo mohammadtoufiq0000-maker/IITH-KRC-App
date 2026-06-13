@@ -13,6 +13,8 @@ function MainLayout() {
         screenOptions={{
           headerStyle: {
             backgroundColor: theme.primary,
+            borderBottomWidth: 2,
+            borderBottomColor: theme.accent,
           },
           headerTintColor: theme.text,
           headerTitleAlign: 'center',
@@ -28,7 +30,9 @@ function MainLayout() {
         <Stack.Screen name="library-services" options={{ headerShown: false }} />
         <Stack.Screen name="service-detail" options={{ title: 'Service Detail' }} />
         <Stack.Screen name="institutional-resources" options={{ title: 'Institutional Repositories' }} />
-        <Stack.Screen name="off-campus-access" options={{ title: 'Off-Campus Access' }} />
+        <Stack.Screen name="off-campus-access" options={{ title: 'E-resource & Database' }} />
+        <Stack.Screen name="tools" options={{ headerShown: false }} />
+        <Stack.Screen name="bookings" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ title: 'My Account' }} />
         <Stack.Screen name="admin-dashboard" options={{ headerShown: false }} />
         <Stack.Screen name="doi-search" options={{ headerShown: false }} />
